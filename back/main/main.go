@@ -1,63 +1,39 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
+	"github.com/iamvkosarev/go-shared-utils/cors"
+	"github.com/iamvkosarev/go-shared-utils/jwts"
+	"github.com/iamvkosarev/go-shared-utils/logs"
+	"github.com/iamvkosarev/sso/back/api"
+	"github.com/iamvkosarev/sso/back/internal/storage/local_storage"
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
+	"os"
+	"time"
 )
 
-func registerHandler(writer http.ResponseWriter, request *http.Request) {
-	if request.Method != http.MethodPost {
-		http.Error(writer, "Not allowed", http.StatusMethodNotAllowed)
-		fmt.Println("Not allowed: " + request.Method)
-		return
-	}
-	var body struct {
-		Email    string `json:"name"`
-		Password string `json:"password"`
-	}
-	if err := json.NewDecoder(request.Body).Decode(&body); err != nil {
-		http.Error(writer, "Bad request", http.StatusBadRequest)
-		fmt.Println("Bad request")
-	}
-	//hashedPassword, err := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
-	//if err != nil {
-	//	http.Error(writer, "Server error", http.StatusInternalServerError)
-	//	fmt.Println("Server error")
-	//	return
-	//}
+const JWT_SECRET_KEY = "JWT_SECRET"
 
-	//_, err = db.Exec("INSERT INTO users (email, password_hash) VALUES ($1, $2)", body.Email, hashedPassword)
-	//if err != nil {
-	//	http.Error(writer, "User already exists", http.StatusConflict)
-	//	return
-	//}
-
-	writer.WriteHeader(http.StatusCreated)
-	fmt.Fprint(writer, "User registered successfully")
+type API interface {
+	RegisterHandler() http.Handler
+	LoginHandler() http.Handler
 }
 
 func main() {
-	http.Handle("/register", enableCORS(http.HandlerFunc(registerHandler)))
-	log.Fatal(http.ListenAndServe(":8080", nil))
-}
-
-func enableCORS(next http.Handler) http.Handler {
-	return http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
-			// Set CORS headers
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
-			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-			// Handle OPTIONS request
-			if r.Method == http.MethodOptions {
-				w.WriteHeader(http.StatusOK)
-				return
-			}
-
-			next.ServeHTTP(w, r)
+	godotenv.Load()
+	var newAPI API = api.NewAPI(
+		api.Deps{
+			Storage:    local_storage.NewStorage(),
+			Cors:       cors.NewCORS([]string{"https://kosarev.app", "http://localhost:63343"}),
+			HttpLogger: logs.NewHttpLogger(true, true),
+			JWT: jwts.NewJWT(
+				os.Getenv(JWT_SECRET_KEY),
+				time.Hour*24,
+			),
 		},
 	)
+	http.Handle("/register", newAPI.RegisterHandler())
+	http.Handle("/login", newAPI.LoginHandler())
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
