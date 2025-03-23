@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package sso;
+
+option go_package = "github.com/iamvkosarev/server/pkg/grpc/server/v1;server";
+
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+import "google/protobuf/empty.proto";
+
+service SSO {
+  rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse) {
+    option (google.api.http) = {
+      post: "/api/server/v1/register"
+      body: "*"
+    };
+  }
+
+  rpc LoginUser(LoginUserRequest) returns (LoginUserResponse) {
+    option (google.api.http) = {
+      post: "/api/server/v1/login"
+      body: "*"
+    };
+  }
+
+  rpc VerifyToken(google.protobuf.Empty) returns (VerifyTokenResponse) {
+    option (google.api.http) = {
+      get: "/api/server/v1/verify"
+    };
+  }
+}
+
+message RegisterUserRequest {
+  string email = 1 [(validate.rules).string = {email: true, min_len: 5, max_len: 254}];
+  string password = 2 [(validate.rules).string = {min_len: 6, max_len: 128}];
+}
+
+message RegisterUserResponse {
+  int64 user_id = 1;
+}
+
+message LoginUserRequest {
+  string email = 1 [(validate.rules).string = {email: true, min_len: 5, max_len: 254}];
+  string password = 2 [(validate.rules).string = {min_len: 6, max_len: 128}];
+}
+
+message LoginUserResponse {
+  string token = 1;
+}
+
+message VerifyTokenResponse {
+  int64 user_id = 1;
+}
