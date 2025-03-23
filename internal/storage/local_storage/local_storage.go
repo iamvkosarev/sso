@@ -2,7 +2,7 @@ package local_storage
 
 import (
 	"fmt"
-	"github.com/iamvkosarev/sso/back/internal/model"
+	"github.com/iamvkosarev/sso/internal/model"
 )
 
 type LocalStorage struct {

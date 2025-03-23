@@ -7,9 +7,10 @@ import (
 	"github.com/go-playground/validator/v10"
 	resp "github.com/iamvkosarev/go-shared-utils/api/response"
 	"github.com/iamvkosarev/go-shared-utils/logger/sl"
-	"github.com/iamvkosarev/sso/back/internal/lib/jwt"
-	"github.com/iamvkosarev/sso/back/internal/model"
-	"github.com/iamvkosarev/sso/back/internal/storage"
+	"github.com/iamvkosarev/sso/internal/config"
+	"github.com/iamvkosarev/sso/internal/lib/jwt"
+	"github.com/iamvkosarev/sso/internal/model"
+	"github.com/iamvkosarev/sso/internal/storage"
 	"golang.org/x/crypto/bcrypt"
 	"log/slog"
 	"net/http"
@@ -33,7 +34,7 @@ type SecretProvider interface {
 	GetSecret() (string, error)
 }
 
-func NewLoginHandler(log *slog.Logger, userProvider UserProvider, app model.App) http.HandlerFunc {
+func NewLoginHandler(log *slog.Logger, userProvider UserProvider, app config.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handlers.login.NewLoginHandler"
 

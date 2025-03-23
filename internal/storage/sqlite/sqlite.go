@@ -4,9 +4,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/iamvkosarev/sso/back/internal/model"
-	"github.com/iamvkosarev/sso/back/internal/storage"
+	"github.com/iamvkosarev/go-shared-utils/logger/sl"
+	"github.com/iamvkosarev/sso/internal/model"
+	"github.com/iamvkosarev/sso/internal/storage"
 	"github.com/mattn/go-sqlite3"
+	"log/slog"
 )
 
 type Storage struct {
@@ -20,22 +22,36 @@ CREATE TABLE IF NOT EXISTS users (
     pass_hash BLOB NOT NULL
 );`
 
-func New(path string) (*Storage, error) {
+// New creates new connection to sqlite3 in provided
+// path and returns [Storage] with it.
+// If database doesn't exist creates new.
+func New(path string, log *slog.Logger) *Storage {
 	const op = "storage.sqlite.New"
+
+	log = log.With(slog.String("op", op))
 
 	db, err := sql.Open("sqlite3", path)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+		log.Error("failed to open database", sl.Err(err))
+		return nil
 	}
 	stmt, err := db.Prepare(prepareStorageStatement)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+		log.Error("failed to prepare database", sl.Err(err))
+		return nil
 	}
+	defer stmt.Close()
+
 	_, err = stmt.Exec()
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+		log.Error("failed to prepare database", sl.Err(err))
+		return nil
 	}
-	return &Storage{db: db}, nil
+	return &Storage{db: db}
+}
+
+func fmtErr(op string, err error) error {
+	return fmt.Errorf("%s: %w", op, err)
 }
 
 func (s Storage) GetUser(email string) (model.User, error) {

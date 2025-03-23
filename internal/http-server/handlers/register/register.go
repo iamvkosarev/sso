@@ -7,7 +7,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	resp "github.com/iamvkosarev/go-shared-utils/api/response"
 	"github.com/iamvkosarev/go-shared-utils/logger/sl"
-	"github.com/iamvkosarev/sso/back/internal/storage"
+	"github.com/iamvkosarev/sso/internal/storage"
 	"golang.org/x/crypto/bcrypt"
 	"io"
 	"log/slog"

@@ -4,7 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/iamvkosarev/sso/back/internal/model"
+	"github.com/iamvkosarev/sso/internal/config"
+	"github.com/iamvkosarev/sso/internal/model"
 	"net/http"
 	"strings"
 	"time"
@@ -21,7 +22,7 @@ type TokenClaims struct {
 	Exp    time.Time `json:"exp"`
 }
 
-func NewToken(user model.User, app model.App) (string, error) {
+func NewToken(user model.User, app config.App) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := jwt.MapClaims{
 		"user_id": user.ID,
@@ -32,7 +33,7 @@ func NewToken(user model.User, app model.App) (string, error) {
 	return token.SignedString([]byte(app.Secret))
 }
 
-func ParseToken(tokenString string, app model.App) (TokenClaims, error) {
+func ParseToken(tokenString string, app config.App) (TokenClaims, error) {
 	var tc TokenClaims
 	token, err := jwt.Parse(
 		tokenString, func(t *jwt.Token) (interface{}, error) {

@@ -6,8 +6,8 @@ import (
 	"github.com/go-chi/render"
 	resp "github.com/iamvkosarev/go-shared-utils/api/response"
 	"github.com/iamvkosarev/go-shared-utils/logger/sl"
-	"github.com/iamvkosarev/sso/back/internal/lib/jwt"
-	"github.com/iamvkosarev/sso/back/internal/model"
+	"github.com/iamvkosarev/sso/internal/config"
+	"github.com/iamvkosarev/sso/internal/lib/jwt"
 	"log/slog"
 	"net/http"
 	"time"
@@ -18,7 +18,7 @@ type Response struct {
 	UserID int64 `json:"user_id"`
 }
 
-func NewVerifyHandler(log *slog.Logger, app model.App) http.HandlerFunc {
+func NewVerifyHandler(log *slog.Logger, app config.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handlers.verify.NewVerifyHandler"
 

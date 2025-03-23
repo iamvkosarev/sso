@@ -1,27 +1,31 @@
 package config
 
 import (
-	"github.com/iamvkosarev/sso/back/internal/model"
 	"github.com/ilyakaznacheev/cleanenv"
 	"log"
 	"os"
+	"time"
 )
 
-type HTTPServerPort struct {
+type HTTPServer struct {
+	// Server address on port
 	Address string `yaml:"address"`
 }
 
-type Auth struct {
-	SecretKey string `yaml:"secret_key"`
-	Algorithm string `yaml:"algorithm"`
+type App struct {
+	// Token signing secret key
+	Secret string `yaml:"secret"`
+	// Token lifetime
+	TokenTTL time.Duration `yaml:"token_ttl"`
 }
 
 type Config struct {
-	Env            string `yaml:"env" env-default:"development"`
-	StoragePath    string `yaml:"storage_path"`
-	HTTPServerPort `yaml:"http_server"`
-	Auth           `yaml:"auth"`
-	App            model.App
+	// Env for logging
+	Env string `yaml:"env" env-default:"development"`
+	// Path for storing Database
+	StoragePath string `yaml:"storage_path"`
+	HTTPServer  `yaml:"http_server"`
+	App         `yaml:"app"`
 }
 
 func MustLoad() *Config {
@@ -32,7 +36,7 @@ func MustLoad() *Config {
 	}
 
 	if _, err := os.Stat(path); err != nil {
-		log.Fatal("CONFIG_PATH does not exist")
+		log.Fatalf("CONFIG_PATH does not exist at: %s\n", path)
 	}
 	var config Config
 	err := cleanenv.ReadConfig(path, &config)

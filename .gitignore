@@ -1,6 +1,6 @@
 *.env
 *.idea/
 
-back/config/
+config/
 
-back/storage/
+storage/
