@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package sso;
 
-option go_package = "github.com/iamvkosarev/server/pkg/grpc/server/v1;server";
+option go_package = "github.com/iamvkosarev/server/pkg/proto/server/v1;server";
 
 import "google/api/annotations.proto";
 import "validate/validate.proto";

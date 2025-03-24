@@ -7,9 +7,9 @@ import (
 	"time"
 )
 
-type HTTPServer struct {
-	// Server address on port
-	Address string `yaml:"address"`
+type Server struct {
+	RESTPort string `yaml:"rest_port"`
+	GRPCPort string `yaml:"grpc_port"`
 }
 
 type App struct {
@@ -24,7 +24,7 @@ type Config struct {
 	Env string `yaml:"env" env-default:"development"`
 	// Path for storing Database
 	StoragePath string `yaml:"storage_path"`
-	HTTPServer  `yaml:"http_server"`
+	Server      `yaml:"server"`
 	App         `yaml:"app"`
 }
 
