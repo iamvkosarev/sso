@@ -5,5 +5,5 @@ include make/docker.mk
 include make/local-docker.mk
 include make/vps.mk
 
-release_and_deploy: docker-release vps-deploy
+release-and-deploy: docker-release vps-deploy
 	@echo "Released and deployed $(IMAGE_NAME)"
