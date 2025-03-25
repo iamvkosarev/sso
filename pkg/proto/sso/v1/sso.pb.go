@@ -4,7 +4,7 @@
 // 	protoc        v5.27.1
 // source: sso/v1/sso.proto
 
-package server
+package sso
 
 import (
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
@@ -282,7 +282,7 @@ const file_sso_v1_sso_proto_rawDesc = "" +
 	"\x03SSO\x12d\n" +
 	"\fRegisterUser\x12\x18.sso.RegisterUserRequest\x1a\x19.sso.RegisterUserResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/api/sso/v1/register\x12X\n" +
 	"\tLoginUser\x12\x15.sso.LoginUserRequest\x1a\x16.sso.LoginUserResponse\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/sso/v1/login\x12[\n" +
-	"\vVerifyToken\x12\x16.google.protobuf.Empty\x1a\x18.sso.VerifyTokenResponse\"\x1a\x82\xd3\xe4\x93\x02\x14\x12\x12/api/sso/v1/verifyB:Z8github.com/iamvkosarev/server/pkg/proto/server/v1;serverb\x06proto3"
+	"\vVerifyToken\x12\x16.google.protobuf.Empty\x1a\x18.sso.VerifyTokenResponse\"\x1a\x82\xd3\xe4\x93\x02\x14\x12\x12/api/sso/v1/verifyB1Z/github.com/iamvkosarev/sso/pkg/proto/sso/v1;ssob\x06proto3"
 
 var (
 	file_sso_v1_sso_proto_rawDescOnce sync.Once
