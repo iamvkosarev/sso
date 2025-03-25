@@ -11,21 +11,21 @@ import "google/protobuf/empty.proto";
 service SSO {
   rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse) {
     option (google.api.http) = {
-      post: "/api/server/v1/register"
+      post: "/api/sso/v1/register"
       body: "*"
     };
   }
 
   rpc LoginUser(LoginUserRequest) returns (LoginUserResponse) {
     option (google.api.http) = {
-      post: "/api/server/v1/login"
+      post: "/api/sso/v1/login"
       body: "*"
     };
   }
 
   rpc VerifyToken(google.protobuf.Empty) returns (VerifyTokenResponse) {
     option (google.api.http) = {
-      get: "/api/server/v1/verify"
+      get: "/api/sso/v1/verify"
     };
   }
 }

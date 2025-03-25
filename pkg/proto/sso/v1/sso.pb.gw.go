@@ -115,7 +115,7 @@ func RegisterSSOHandlerServer(ctx context.Context, mux *runtime.ServeMux, server
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sso.SSO/RegisterUser", runtime.WithHTTPPathPattern("/api/server/v1/register"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sso.SSO/RegisterUser", runtime.WithHTTPPathPattern("/api/sso/v1/register"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -135,7 +135,7 @@ func RegisterSSOHandlerServer(ctx context.Context, mux *runtime.ServeMux, server
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sso.SSO/LoginUser", runtime.WithHTTPPathPattern("/api/server/v1/login"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sso.SSO/LoginUser", runtime.WithHTTPPathPattern("/api/sso/v1/login"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -155,7 +155,7 @@ func RegisterSSOHandlerServer(ctx context.Context, mux *runtime.ServeMux, server
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sso.SSO/VerifyToken", runtime.WithHTTPPathPattern("/api/server/v1/verify"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sso.SSO/VerifyToken", runtime.WithHTTPPathPattern("/api/sso/v1/verify"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -213,7 +213,7 @@ func RegisterSSOHandlerClient(ctx context.Context, mux *runtime.ServeMux, client
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sso.SSO/RegisterUser", runtime.WithHTTPPathPattern("/api/server/v1/register"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sso.SSO/RegisterUser", runtime.WithHTTPPathPattern("/api/sso/v1/register"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -230,7 +230,7 @@ func RegisterSSOHandlerClient(ctx context.Context, mux *runtime.ServeMux, client
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sso.SSO/LoginUser", runtime.WithHTTPPathPattern("/api/server/v1/login"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sso.SSO/LoginUser", runtime.WithHTTPPathPattern("/api/sso/v1/login"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -247,7 +247,7 @@ func RegisterSSOHandlerClient(ctx context.Context, mux *runtime.ServeMux, client
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sso.SSO/VerifyToken", runtime.WithHTTPPathPattern("/api/server/v1/verify"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sso.SSO/VerifyToken", runtime.WithHTTPPathPattern("/api/sso/v1/verify"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -264,9 +264,9 @@ func RegisterSSOHandlerClient(ctx context.Context, mux *runtime.ServeMux, client
 }
 
 var (
-	pattern_SSO_RegisterUser_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "server", "v1", "register"}, ""))
-	pattern_SSO_LoginUser_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "server", "v1", "login"}, ""))
-	pattern_SSO_VerifyToken_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "server", "v1", "verify"}, ""))
+	pattern_SSO_RegisterUser_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "sso", "v1", "register"}, ""))
+	pattern_SSO_LoginUser_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "sso", "v1", "login"}, ""))
+	pattern_SSO_VerifyToken_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "sso", "v1", "verify"}, ""))
 )
 
 var (

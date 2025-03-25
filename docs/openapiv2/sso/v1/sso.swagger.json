@@ -16,7 +16,7 @@
     "application/json"
   ],
   "paths": {
-    "/api/server/v1/login": {
+    "/api/sso/v1/login": {
       "post": {
         "operationId": "SSO_LoginUser",
         "responses": {
@@ -48,7 +48,7 @@
         ]
       }
     },
-    "/api/server/v1/register": {
+    "/api/sso/v1/register": {
       "post": {
         "operationId": "SSO_RegisterUser",
         "responses": {
@@ -80,7 +80,7 @@
         ]
       }
     },
-    "/api/server/v1/verify": {
+    "/api/sso/v1/verify": {
       "get": {
         "operationId": "SSO_VerifyToken",
         "responses": {

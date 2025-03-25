@@ -278,11 +278,11 @@ const file_sso_v1_sso_proto_rawDesc = "" +
 	"\x11LoginUserResponse\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\".\n" +
 	"\x13VerifyTokenResponse\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\x03R\x06userId2\xab\x02\n" +
-	"\x03SSO\x12g\n" +
-	"\fRegisterUser\x12\x18.sso.RegisterUserRequest\x1a\x19.sso.RegisterUserResponse\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/api/server/v1/register\x12[\n" +
-	"\tLoginUser\x12\x15.sso.LoginUserRequest\x1a\x16.sso.LoginUserResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/api/server/v1/login\x12^\n" +
-	"\vVerifyToken\x12\x16.google.protobuf.Empty\x1a\x18.sso.VerifyTokenResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/api/server/v1/verifyB:Z8github.com/iamvkosarev/server/pkg/proto/server/v1;serverb\x06proto3"
+	"\auser_id\x18\x01 \x01(\x03R\x06userId2\xa2\x02\n" +
+	"\x03SSO\x12d\n" +
+	"\fRegisterUser\x12\x18.sso.RegisterUserRequest\x1a\x19.sso.RegisterUserResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/api/sso/v1/register\x12X\n" +
+	"\tLoginUser\x12\x15.sso.LoginUserRequest\x1a\x16.sso.LoginUserResponse\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/sso/v1/login\x12[\n" +
+	"\vVerifyToken\x12\x16.google.protobuf.Empty\x1a\x18.sso.VerifyTokenResponse\"\x1a\x82\xd3\xe4\x93\x02\x14\x12\x12/api/sso/v1/verifyB:Z8github.com/iamvkosarev/server/pkg/proto/server/v1;serverb\x06proto3"
 
 var (
 	file_sso_v1_sso_proto_rawDescOnce sync.Once
