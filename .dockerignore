@@ -7,7 +7,7 @@ docs
 third_party
 make
 config
-storage
+migrations
 
 # Pattern files
 *.md

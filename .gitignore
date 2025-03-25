@@ -3,7 +3,6 @@
 bin
 third_party
 config
-storage
 
 # Pattern files
 *.DS_Store

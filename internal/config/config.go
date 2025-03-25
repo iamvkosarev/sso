@@ -13,19 +13,14 @@ type Server struct {
 }
 
 type App struct {
-	// Token signing secret key
-	Secret string `yaml:"secret"`
-	// Token lifetime
+	Secret   string        `yaml:"secret"`
 	TokenTTL time.Duration `yaml:"token_ttl"`
 }
 
 type Config struct {
-	// Env for logging
-	Env string `yaml:"env" env-default:"development"`
-	// Path for storing Database
-	StoragePath string `yaml:"storage_path"`
-	Server      `yaml:"server"`
-	App         `yaml:"app"`
+	Env    string `yaml:"env" env-default:"development"`
+	Server `yaml:"server"`
+	App    `yaml:"app"`
 }
 
 func MustLoad() *Config {
