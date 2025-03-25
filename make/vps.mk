@@ -1,17 +1,24 @@
 LAST_TAG := $(shell go run $(ROOT_DIR)/pkg/tools/versiongen -file $(VERSION_FILE) -mode=last)
-REMOTE_IMAGE ?= $(DOCKER_REPO):$(LAST_TAG)
+REMOTE_IMAGE := $(DOCKER_REPO):$(LAST_TAG)
+REMOTE_DIR := /root/$(PROJECT_NAME)
 
-deploy-vps:
-	@echo "Uploading .env to VPS..."
-	scp .env $(VPS_USER)@$(VPS_HOST):/root/$(PROJECT_NAME).env
+vps-deploy:
+	@echo "Uploading .env, docker-compose.yml and config/ to VPS..."
+	ssh $(VPS_USER)@$(VPS_HOST) "mkdir -p $(REMOTE_DIR)/config"
+	scp .env docker-compose.yml $(VPS_USER)@$(VPS_HOST):$(REMOTE_DIR)/
+	scp -r config/* $(VPS_USER)@$(VPS_HOST):$(REMOTE_DIR)/config/
 
-	@echo "Deploying image $(REMOTE_IMAGE) to $(VPS_HOST)..."
-	@ssh $(VPS_USER)@$(VPS_HOST) "\
-		docker pull $(REMOTE_IMAGE) && \
-		(docker stop $(PROJECT_NAME) || true) && \
-		(docker rm $(PROJECT_NAME) || true) && \
-		docker run -d --name $(PROJECT_NAME) \
-        			--env-file /root/$(PROJECT_NAME).env \
-        			-p $(REST_PORT):$(REST_PORT) -p $(GRPC_PORT):$(GRPC_PORT) \
-        			$(REMOTE_IMAGE)"
+	@echo "🛠️  Injecting IMAGE_NAME=$(REMOTE_IMAGE) into .env..."
+	ssh $(VPS_USER)@$(VPS_HOST) "\
+		cd $(REMOTE_DIR) && \
+		grep -v '^IMAGE_NAME=' .env > .env.tmp || true && \
+		echo 'IMAGE_NAME=$(REMOTE_IMAGE)' >> .env.tmp && \
+		mv .env.tmp .env"
+
+	@echo "Deploying image $(REMOTE_IMAGE) on VPS..."
+	ssh $(VPS_USER)@$(VPS_HOST) "\
+		cd $(REMOTE_DIR) && \
+		docker compose pull && \
+		docker compose up -d --remove-orphans"
+
 	@echo "Deployed $(REMOTE_IMAGE) to $(VPS_USER)@$(VPS_HOST)"

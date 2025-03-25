@@ -8,7 +8,7 @@ IMAGE_NAME := $(DOCKER_REPO):$(TAG)
 docker-tag:
 	@echo "Building image: $(IMAGE_NAME)"
 
-.PHONY: docker-buil docker-tag
+.PHONY: docker-build docker-tag
 docker-build: docker-tag
 	docker build --platform=linux/amd64 -t $(IMAGE_NAME) .
 
