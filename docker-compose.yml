@@ -1,7 +1,7 @@
 services:
-  postgres:
+  sso-postgres:
     image: postgres:16.3
-    container_name: postgres-container
+    container_name: sso-postgres-container
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
@@ -21,6 +21,7 @@ services:
       - net
 
   sso:
+    container_name: sso-container
     image: ${IMAGE_NAME:-sso:local}
     volumes:
       - ./.env:/app/.env
@@ -37,7 +38,7 @@ services:
       GRPC_PORT: ${GRPC_PORT}
       REST_PORT: ${REST_PORT}
     depends_on:
-      postgres:
+      sso-postgres:
         condition: service_healthy
     command: ["./server"]
     networks:

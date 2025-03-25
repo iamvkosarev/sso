@@ -5,7 +5,7 @@ local-docker-build:
 	docker-compose build
 
 local-docker-up:
-	@docker-compose up -d sso postgres
+	@docker-compose up -d sso sso-postgres
 
 local-docker-down:
 	docker compose down
