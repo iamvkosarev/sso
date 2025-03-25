@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"errors"
-	"github.com/go-playground/validator/v10"
 	"github.com/iamvkosarev/sso/internal/config"
 	"github.com/iamvkosarev/sso/internal/domain/entity"
 	"github.com/iamvkosarev/sso/internal/infrastructure/auth/jwt"
@@ -19,14 +18,12 @@ type userRepository interface {
 
 type UserUseCase struct {
 	userRepository
-	validator *validator.Validate
-	app       config.App
+	app config.App
 }
 
 func NewUserUseCase(repo userRepository, app config.App) *UserUseCase {
 	return &UserUseCase{
 		userRepository: repo,
-		validator:      validator.New(),
 		app:            app,
 	}
 }
