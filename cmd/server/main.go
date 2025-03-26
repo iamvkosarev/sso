@@ -40,7 +40,7 @@ func main() {
 	)
 	pool, err := postgres.NewPostgresPool(ctx, dns)
 	if err != nil {
-		log.Fatalf("error setting up sqlite: %v\n", err)
+		log.Fatalf("error setting up postgres: %v\n", err)
 	}
 	userRepository := sqlRepository.NewUserRepository(pool)
 

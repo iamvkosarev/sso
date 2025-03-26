@@ -98,8 +98,8 @@ func (s *Server) VerifyToken(ctx context.Context, _ *emptypb.Empty) (*pb.VerifyT
 		case errors.Is(err, entity.ErrInvalidAuthHeader):
 			return nil, status.Error(
 				codes.PermissionDenied,
-				"failed to extract token: not correct \"authorization\" "+
-					"value format: correct format is \"Bearer your_token\"",
+				"failed to extract token: not correct 'authorization' "+
+					"value format: correct format is 'Bearer YOUR_TOKEN_HERE'",
 			)
 		default:
 			log.Error("failed to extract", err.Error())
