@@ -38,10 +38,14 @@ func ParseToken(tokenString string, secret string) (TokenClaims, error) {
 		},
 	)
 	if err != nil {
-		if errors.Is(err, jwt.ErrTokenExpired) {
+		switch {
+		case errors.Is(err, jwt.ErrTokenExpired):
 			return tc, entity.ErrTokenExpired
+		case errors.Is(err, jwt.ErrSignatureInvalid):
+			return tc, entity.ErrTokenIsInvalid
+		case errors.Is(err, jwt.ErrTokenSignatureInvalid):
+			return tc, entity.ErrTokenIsInvalid
 		}
-
 		return tc, fmt.Errorf("can't parse token: %w", err)
 	}
 	claims, ok := token.Claims.(jwt.MapClaims)
