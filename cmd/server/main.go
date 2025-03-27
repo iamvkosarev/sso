@@ -9,6 +9,7 @@ import (
 	"github.com/iamvkosarev/sso/internal/config"
 	"github.com/iamvkosarev/sso/internal/infrastructure/database/postgres"
 	server "github.com/iamvkosarev/sso/internal/infrastructure/grpc"
+	"github.com/iamvkosarev/sso/internal/infrastructure/grpc/interceptor"
 	sqlRepository "github.com/iamvkosarev/sso/internal/infrastructure/repository/postgres"
 	pb "github.com/iamvkosarev/sso/pkg/proto/sso/v1"
 	"github.com/joho/godotenv"
@@ -49,7 +50,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(interceptor.RecoveryInterceptor(logger)))
 	useCase := usecase.NewUserUseCase(userRepository, cfg.App)
 	ssoServer := server.NewServer(useCase, logger)
 
