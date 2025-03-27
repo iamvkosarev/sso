@@ -264,7 +264,7 @@ var File_sso_v1_sso_proto protoreflect.FileDescriptor
 
 const file_sso_v1_sso_proto_rawDesc = "" +
 	"\n" +
-	"\x10sso/v1/sso.proto\x12\x03sso\x1a\x1cgoogle/api/annotations.proto\x1a\x17validate/validate.proto\x1a\x1bgoogle/protobuf/empty.proto\"a\n" +
+	"\x10sso/v1/sso.proto\x12\x03sso\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x17validate/validate.proto\"a\n" +
 	"\x13RegisterUserRequest\x12\"\n" +
 	"\x05email\x18\x01 \x01(\tB\f\xfaB\tr\a\x10\x05\x18\xfe\x01`\x01R\x05email\x12&\n" +
 	"\bpassword\x18\x02 \x01(\tB\n" +
@@ -278,11 +278,12 @@ const file_sso_v1_sso_proto_rawDesc = "" +
 	"\x11LoginUserResponse\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\".\n" +
 	"\x13VerifyTokenResponse\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\x03R\x06userId2\xa2\x02\n" +
-	"\x03SSO\x12d\n" +
-	"\fRegisterUser\x12\x18.sso.RegisterUserRequest\x1a\x19.sso.RegisterUserResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/api/sso/v1/register\x12X\n" +
-	"\tLoginUser\x12\x15.sso.LoginUserRequest\x1a\x16.sso.LoginUserResponse\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/sso/v1/login\x12[\n" +
-	"\vVerifyToken\x12\x16.google.protobuf.Empty\x1a\x18.sso.VerifyTokenResponse\"\x1a\x82\xd3\xe4\x93\x02\x14\x12\x12/api/sso/v1/verifyB1Z/github.com/iamvkosarev/sso/pkg/proto/sso/v1;ssob\x06proto3"
+	"\auser_id\x18\x01 \x01(\x03R\x06userId2\x8a\x02\n" +
+	"\x03SSO\x12\\\n" +
+	"\fRegisterUser\x12\x18.sso.RegisterUserRequest\x1a\x19.sso.RegisterUserResponse\"\x17\x82\xd3\xe4\x93\x02\x11:\x01*\"\f/v1/register\x12P\n" +
+	"\tLoginUser\x12\x15.sso.LoginUserRequest\x1a\x16.sso.LoginUserResponse\"\x14\x82\xd3\xe4\x93\x02\x0e:\x01*\"\t/v1/login\x12S\n" +
+	"\vVerifyToken\x12\x16.google.protobuf.Empty\x1a\x18.sso.VerifyTokenResponse\"\x12\x82\xd3\xe4\x93\x02\f\x12\n" +
+	"/v1/verifyB1Z/github.com/iamvkosarev/sso/pkg/proto/sso/v1;ssob\x06proto3"
 
 var (
 	file_sso_v1_sso_proto_rawDescOnce sync.Once

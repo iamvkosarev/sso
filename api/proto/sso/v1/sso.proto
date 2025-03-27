@@ -11,21 +11,21 @@ option go_package = "github.com/iamvkosarev/sso/pkg/proto/sso/v1;sso";
 service SSO {
     rpc RegisterUser (RegisterUserRequest) returns (RegisterUserResponse) {
         option (google.api.http) = {
-            post: "/api/sso/v1/register"
+            post: "/v1/register"
             body: "*"
         };
     }
 
     rpc LoginUser (LoginUserRequest) returns (LoginUserResponse) {
         option (google.api.http) = {
-            post: "/api/sso/v1/login"
+            post: "/v1/login"
             body: "*"
         };
     }
 
     rpc VerifyToken (google.protobuf.Empty) returns (VerifyTokenResponse) {
         option (google.api.http) = {
-            get: "/api/sso/v1/verify"
+            get: "/v1/verify"
         };
     }
 }
