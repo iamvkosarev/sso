@@ -7,10 +7,17 @@ import (
 	"time"
 )
 
+type CorsOptions struct {
+	AllowedOrigins   []string `yaml:"allowed_origins"`
+	AllowCredentials bool     `yaml:"allow_credentials"`
+	MaxAge           int      `yaml:"max_age"`
+}
+
 type Server struct {
-	RestPrefix string `yaml:"rest_prefix"`
-	RESTPort   string `yaml:"rest_port"`
-	GRPCPort   string `yaml:"grpc_port"`
+	RestPrefix  string      `yaml:"rest_prefix"`
+	RESTPort    string      `yaml:"rest_port"`
+	GRPCPort    string      `yaml:"grpc_port"`
+	CorsOptions CorsOptions `yaml:"cors"`
 }
 
 type App struct {

@@ -10,6 +10,7 @@ import (
 	"github.com/iamvkosarev/sso/internal/infrastructure/database/postgres"
 	server "github.com/iamvkosarev/sso/internal/infrastructure/grpc"
 	"github.com/iamvkosarev/sso/internal/infrastructure/grpc/interceptor"
+	"github.com/iamvkosarev/sso/internal/infrastructure/http/middleware"
 	sqlRepository "github.com/iamvkosarev/sso/internal/infrastructure/repository/postgres"
 	pb "github.com/iamvkosarev/sso/pkg/proto/sso/v1"
 	"github.com/joho/godotenv"
@@ -95,10 +96,13 @@ func main() {
 		},
 	)
 
+	corsHandler := middleware.CorsWithOptions(httpMux, cfg.Server.CorsOptions)
+
 	httpAddr := fmt.Sprintf("0.0.0.0%s", cfg.Server.RESTPort)
+
 	log.Printf("Starting REST gateway on %s", httpAddr)
 
-	if err := http.ListenAndServe(httpAddr, httpMux); err != nil {
+	if err := http.ListenAndServe(httpAddr, corsHandler); err != nil {
 		log.Fatalf("Failed to serve HTTP: %v", err)
 	}
 }
