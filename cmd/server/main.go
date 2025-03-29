@@ -14,12 +14,12 @@ import (
 	pb "github.com/iamvkosarev/sso/pkg/proto/sso/v1"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"net"
 	"net/http"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -46,17 +46,8 @@ func main() {
 	}
 	userRepository := sqlRepository.NewUserRepository(pool)
 
-	var opts []grpc.ServerOption
-	opts = append(opts, grpc.UnaryInterceptor(interceptor.RecoveryInterceptor(logger)))
-
-	if cfg.Server.TLSEnabled {
-		certFile := os.Getenv("CERT_FILE")
-		keyFile := os.Getenv("KEY_FILE")
-		creds, err := credentials.NewServerTLSFromFile(certFile, keyFile)
-		if err != nil {
-			log.Fatalf("Failed to generate credentials: %v", err)
-		}
-		opts = append(opts, grpc.Creds(creds))
+	opts := []grpc.ServerOption{
+		grpc.UnaryInterceptor(interceptor.RecoveryInterceptor(logger)),
 	}
 
 	grpcServer := grpc.NewServer(opts...)
@@ -65,9 +56,10 @@ func main() {
 
 	pb.RegisterSSOServer(grpcServer, ssoServer)
 
-	lis, err := net.Listen("tcp", cfg.Server.GRPCPort)
+	grpcAddr := fmt.Sprintf("0.0.0.0%s", cfg.Server.GRPCPort)
+	lis, err := net.Listen("tcp", grpcAddr)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		log.Fatalf("failed to listen on %s: %v", grpcAddr, err)
 	}
 
 	go func() {
@@ -78,30 +70,35 @@ func main() {
 	}()
 
 	httpMux := http.NewServeMux()
+
+	grpcGatewayTarget := fmt.Sprintf("localhost%s", cfg.Server.GRPCPort)
+
+	gwOpts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	}
+
 	gwMux := runtime.NewServeMux()
-
-	err = pb.RegisterSSOHandlerFromEndpoint(
-		ctx, gwMux, cfg.Server.GRPCPort,
-		[]grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())},
-	)
-
-	httpMux.Handle(cfg.Server.RestPrefix+"/", http.StripPrefix(cfg.Server.RestPrefix, gwMux))
+	err = pb.RegisterSSOHandlerFromEndpoint(ctx, gwMux, grpcGatewayTarget, gwOpts)
 	if err != nil {
 		log.Fatalf("failed to start HTTP gateway: %v", err)
 	}
 
-	log.Println("Starting REST gateway on", cfg.Server.RESTPort)
-	if cfg.Server.TLSEnabled {
-		certFile := os.Getenv("CERT_FILE")
-		keyFile := os.Getenv("KEY_FILE")
-		if err := http.ListenAndServeTLS(
-			cfg.Server.RESTPort, certFile, keyFile, httpMux,
-		); err != nil {
-			log.Fatalf("failed to serve HTTPS: %v", err)
-		}
-	} else {
-		if err := http.ListenAndServe(cfg.Server.RESTPort, httpMux); err != nil {
-			log.Fatalf("failed to serve HTTP: %v", err)
-		}
+	httpMux.Handle("/v1/", gwMux)
+
+	httpMux.HandleFunc(
+		cfg.Server.RestPrefix+"/v1/", func(w http.ResponseWriter, r *http.Request) {
+			path := strings.TrimPrefix(r.URL.Path, cfg.Server.RestPrefix)
+			r2 := new(http.Request)
+			*r2 = *r
+			r2.URL.Path = path
+			gwMux.ServeHTTP(w, r2)
+		},
+	)
+
+	httpAddr := fmt.Sprintf("0.0.0.0%s", cfg.Server.RESTPort)
+	log.Printf("Starting REST gateway on %s", httpAddr)
+
+	if err := http.ListenAndServe(httpAddr, httpMux); err != nil {
+		log.Fatalf("Failed to serve HTTP: %v", err)
 	}
 }

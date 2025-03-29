@@ -3,7 +3,6 @@
 bin
 third_party
 config
-certificates
 
 # Pattern files
 *.DS_Store

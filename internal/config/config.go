@@ -11,7 +11,6 @@ type Server struct {
 	RestPrefix string `yaml:"rest_prefix"`
 	RESTPort   string `yaml:"rest_port"`
 	GRPCPort   string `yaml:"grpc_port"`
-	TLSEnabled bool   `yaml:"tls_enabled"`
 }
 
 type App struct {
