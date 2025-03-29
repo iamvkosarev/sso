@@ -26,6 +26,7 @@ services:
     volumes:
       - ./.env:/app/.env
       - ./config:/app/config/
+      - ./certificates:/app/certificates/
     build:
       context: .
       dockerfile: Dockerfile

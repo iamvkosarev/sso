@@ -8,6 +8,7 @@ third_party
 make
 config
 migrations
+certificates
 
 # Pattern files
 *.md

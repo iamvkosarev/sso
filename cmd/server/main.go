@@ -14,6 +14,7 @@ import (
 	pb "github.com/iamvkosarev/sso/pkg/proto/sso/v1"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"net"
@@ -45,16 +46,29 @@ func main() {
 	}
 	userRepository := sqlRepository.NewUserRepository(pool)
 
-	lis, err := net.Listen("tcp", cfg.Server.GRPCPort)
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+	var opts []grpc.ServerOption
+	opts = append(opts, grpc.UnaryInterceptor(interceptor.RecoveryInterceptor(logger)))
+
+	if cfg.Server.TLSEnabled {
+		certFile := os.Getenv("CERT_FILE")
+		keyFile := os.Getenv("KEY_FILE")
+		creds, err := credentials.NewServerTLSFromFile(certFile, keyFile)
+		if err != nil {
+			log.Fatalf("Failed to generate credentials: %v", err)
+		}
+		opts = append(opts, grpc.Creds(creds))
 	}
 
-	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(interceptor.RecoveryInterceptor(logger)))
+	grpcServer := grpc.NewServer(opts...)
 	useCase := usecase.NewUserUseCase(userRepository, cfg.App)
 	ssoServer := server.NewServer(useCase, logger)
 
 	pb.RegisterSSOServer(grpcServer, ssoServer)
+
+	lis, err := net.Listen("tcp", cfg.Server.GRPCPort)
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
 
 	go func() {
 		log.Println("Starting gRPC server on", cfg.Server.GRPCPort)
@@ -77,7 +91,17 @@ func main() {
 	}
 
 	log.Println("Starting REST gateway on", cfg.Server.RESTPort)
-	if err := http.ListenAndServe(cfg.Server.RESTPort, httpMux); err != nil {
-		log.Fatalf("failed to serve HTTP: %v", err)
+	if cfg.Server.TLSEnabled {
+		certFile := os.Getenv("CERT_FILE")
+		keyFile := os.Getenv("KEY_FILE")
+		if err := http.ListenAndServeTLS(
+			cfg.Server.RESTPort, certFile, keyFile, httpMux,
+		); err != nil {
+			log.Fatalf("failed to serve HTTPS: %v", err)
+		}
+	} else {
+		if err := http.ListenAndServe(cfg.Server.RESTPort, httpMux); err != nil {
+			log.Fatalf("failed to serve HTTP: %v", err)
+		}
 	}
 }
