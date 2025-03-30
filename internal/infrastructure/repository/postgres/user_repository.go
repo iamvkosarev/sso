@@ -26,7 +26,7 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (entity.U
 	query := `SELECT id, email, pass_hash FROM users WHERE email = $1`
 
 	var user entity.User
-	err := r.db.QueryRow(ctx, query, email).Scan(&user.ID, &user.Email, &user.PassHash)
+	err := r.db.QueryRow(ctx, query, email).Scan(&user.Id, &user.Email, &user.PassHash)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return entity.User{}, entity.ErrUserNotFound
@@ -45,7 +45,7 @@ func (r *UserRepository) ExistsByEmail(ctx context.Context, email string) (bool,
 	return exists, err
 }
 
-func (r *UserRepository) Save(ctx context.Context, user entity.User) (int64, error) {
+func (r *UserRepository) Save(ctx context.Context, user entity.User) (entity.UserId, error) {
 	const op = "repository.postgres.Save"
 
 	var id int64
@@ -67,5 +67,5 @@ func (r *UserRepository) Save(ctx context.Context, user entity.User) (int64, err
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return id, nil
+	return entity.UserId(id), nil
 }

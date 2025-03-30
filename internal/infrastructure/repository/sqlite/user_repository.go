@@ -39,7 +39,7 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (entity.U
 	defer res.Close()
 	if res.Next() {
 		var user entity.User
-		if err := res.Scan(&user.ID, &user.Email, &user.PassHash); err != nil {
+		if err := res.Scan(&user.Id, &user.Email, &user.PassHash); err != nil {
 			return entity.User{}, fmt.Errorf("%s: %w", op, err)
 		}
 		return user, nil

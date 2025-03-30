@@ -14,8 +14,8 @@ import (
 )
 
 type UserUseCase interface {
-	Register(ctx context.Context, email string, password string) (int64, error)
-	Login(ctx context.Context, email string, password string) (string, error)
+	Register(ctx context.Context, email string, password string) (entity.UserId, error)
+	Login(ctx context.Context, email string, password string) (string, entity.UserId, error)
 	Verify(ctx context.Context, token string) (int64, error)
 }
 
@@ -50,8 +50,9 @@ func (s *Server) RegisterUser(ctx context.Context, req *pb.RegisterUserRequest) 
 			return nil, status.Error(codes.Internal, "internal error")
 		}
 	}
-	log.Info("User registered", slog.String("email", req.Email), slog.Int64("id", id))
-	return &pb.RegisterUserResponse{UserId: id}, nil
+	resId := int64(id)
+	log.Info("User registered", slog.String("email", req.Email), slog.Int64("id", resId))
+	return &pb.RegisterUserResponse{UserId: resId}, nil
 }
 
 func (s *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {
@@ -66,7 +67,7 @@ func (s *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (*pb.L
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	token, err := s.userUseCase.Login(ctx, req.Email, req.Password)
+	token, userId, err := s.userUseCase.Login(ctx, req.Email, req.Password)
 	if err != nil {
 		switch {
 		case errors.Is(err, entity.ErrUserNotFound):
@@ -76,7 +77,9 @@ func (s *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (*pb.L
 			return nil, status.Error(codes.Internal, "internal error")
 		}
 	}
-	return &pb.LoginUserResponse{Token: token}, nil
+
+	resId := int64(userId)
+	return &pb.LoginUserResponse{Token: token, UserId: resId}, nil
 }
 
 func (s *Server) VerifyToken(ctx context.Context, _ *emptypb.Empty) (*pb.VerifyTokenResponse, error) {

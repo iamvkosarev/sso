@@ -12,7 +12,7 @@ import (
 
 type userRepository interface {
 	ExistsByEmail(ctx context.Context, email string) (bool, error)
-	Save(ctx context.Context, user entity.User) (int64, error)
+	Save(ctx context.Context, user entity.User) (entity.UserId, error)
 	GetByEmail(ctx context.Context, email string) (entity.User, error)
 }
 
@@ -28,7 +28,7 @@ func NewUserUseCase(repo userRepository, app config.App) *UserUseCase {
 	}
 }
 
-func (uc *UserUseCase) Register(ctx context.Context, email, password string) (int64, error) {
+func (uc *UserUseCase) Register(ctx context.Context, email, password string) (entity.UserId, error) {
 	user := entity.User{
 		Email: email,
 	}
@@ -56,21 +56,21 @@ func (uc *UserUseCase) Register(ctx context.Context, email, password string) (in
 	return id, nil
 }
 
-func (uc *UserUseCase) Login(ctx context.Context, email string, password string) (string, error) {
+func (uc *UserUseCase) Login(ctx context.Context, email string, password string) (string, entity.UserId, error) {
 	user, err := uc.userRepository.GetByEmail(ctx, email)
 
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 	if err := bcrypt.CompareHashAndPassword(user.PassHash, []byte(password)); err != nil {
-		return "", err
+		return "", 0, err
 	}
 
 	token, err := jwt.NewToken(user, uc.app.Secret, uc.app.TokenTTL)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
-	return token, nil
+	return token, user.Id, nil
 }
 
 func (uc *UserUseCase) Verify(_ context.Context, token string) (int64, error) {

@@ -175,6 +175,7 @@ func (x *LoginUserRequest) GetPassword() string {
 type LoginUserResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	UserId        int64                  `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -214,6 +215,13 @@ func (x *LoginUserResponse) GetToken() string {
 		return x.Token
 	}
 	return ""
+}
+
+func (x *LoginUserResponse) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
 }
 
 type VerifyTokenResponse struct {
@@ -274,9 +282,10 @@ const file_sso_v1_sso_proto_rawDesc = "" +
 	"\x10LoginUserRequest\x12\"\n" +
 	"\x05email\x18\x01 \x01(\tB\f\xfaB\tr\a\x10\x05\x18\xfe\x01`\x01R\x05email\x12&\n" +
 	"\bpassword\x18\x02 \x01(\tB\n" +
-	"\xfaB\ar\x05\x10\x06\x18\x80\x01R\bpassword\")\n" +
+	"\xfaB\ar\x05\x10\x06\x18\x80\x01R\bpassword\"B\n" +
 	"\x11LoginUserResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\".\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\x03R\x06userId\".\n" +
 	"\x13VerifyTokenResponse\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId2\x8a\x02\n" +
 	"\x03SSO\x12\\\n" +

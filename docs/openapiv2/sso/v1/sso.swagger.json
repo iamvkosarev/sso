@@ -148,6 +148,10 @@
       "properties": {
         "token": {
           "type": "string"
+        },
+        "userId": {
+          "type": "string",
+          "format": "int64"
         }
       }
     },

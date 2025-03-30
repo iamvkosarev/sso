@@ -19,7 +19,7 @@ type TokenClaims struct {
 func NewToken(user entity.User, secret string, tokenTTL time.Duration) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := jwt.MapClaims{
-		"user_id": user.ID,
+		"user_id": user.Id,
 		"exp":     time.Now().Add(tokenTTL).Unix(),
 	}
 
