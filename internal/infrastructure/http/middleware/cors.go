@@ -3,6 +3,7 @@ package middleware
 import (
 	"github.com/iamvkosarev/sso/internal/config"
 	"net/http"
+	"strconv"
 )
 
 func CorsWithOptions(next http.Handler, options config.CorsOptions) http.Handler {
@@ -23,20 +24,20 @@ func CorsWithOptions(next http.Handler, options config.CorsOptions) http.Handler
 				}
 			}
 
-			if allowed {
+			if allowed || len(options.AllowedOrigins) == 0 {
 				w.Header().Set("Access-Control-Allow-Origin", origin)
 				w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 				w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+				w.Header().Set("Access-Control-Max-Age", strconv.Itoa(options.MaxAge))
 
 				if options.AllowCredentials {
 					w.Header().Set("Access-Control-Allow-Credentials", "true")
 				}
+			}
 
-				if r.Method == "OPTIONS" {
-					w.Header().Set("Access-Control-Max-Age", string(options.MaxAge))
-					w.WriteHeader(http.StatusOK)
-					return
-				}
+			if r.Method == http.MethodOptions {
+				w.WriteHeader(http.StatusOK)
+				return
 			}
 
 			next.ServeHTTP(w, r)
