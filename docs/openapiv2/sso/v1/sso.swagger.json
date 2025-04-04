@@ -97,6 +97,14 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
         "tags": [
           "SSO"
         ]

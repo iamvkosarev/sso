@@ -615,6 +615,110 @@ var _ interface {
 	ErrorName() string
 } = LoginUserResponseValidationError{}
 
+// Validate checks the field values on VerifyTokenRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *VerifyTokenRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on VerifyTokenRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// VerifyTokenRequestMultiError, or nil if none found.
+func (m *VerifyTokenRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *VerifyTokenRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Token
+
+	if len(errors) > 0 {
+		return VerifyTokenRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// VerifyTokenRequestMultiError is an error wrapping multiple validation errors
+// returned by VerifyTokenRequest.ValidateAll() if the designated constraints
+// aren't met.
+type VerifyTokenRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m VerifyTokenRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m VerifyTokenRequestMultiError) AllErrors() []error { return m }
+
+// VerifyTokenRequestValidationError is the validation error returned by
+// VerifyTokenRequest.Validate if the designated constraints aren't met.
+type VerifyTokenRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e VerifyTokenRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e VerifyTokenRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e VerifyTokenRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e VerifyTokenRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e VerifyTokenRequestValidationError) ErrorName() string {
+	return "VerifyTokenRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e VerifyTokenRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sVerifyTokenRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = VerifyTokenRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = VerifyTokenRequestValidationError{}
+
 // Validate checks the field values on VerifyTokenResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.

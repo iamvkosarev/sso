@@ -23,7 +23,7 @@ service SSO {
         };
     }
 
-    rpc VerifyToken (google.protobuf.Empty) returns (VerifyTokenResponse) {
+    rpc VerifyToken (VerifyTokenRequest) returns (VerifyTokenResponse) {
         option (google.api.http) = {
             get: "/v1/verify"
         };
@@ -47,6 +47,10 @@ message LoginUserRequest {
 message LoginUserResponse {
     string token = 1;
     int64 user_id = 2;
+}
+
+message VerifyTokenRequest {
+    string token = 1;
 }
 
 message VerifyTokenResponse {

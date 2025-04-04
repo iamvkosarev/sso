@@ -11,7 +11,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -31,7 +30,7 @@ const (
 type SSOClient interface {
 	RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*RegisterUserResponse, error)
 	LoginUser(ctx context.Context, in *LoginUserRequest, opts ...grpc.CallOption) (*LoginUserResponse, error)
-	VerifyToken(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*VerifyTokenResponse, error)
+	VerifyToken(ctx context.Context, in *VerifyTokenRequest, opts ...grpc.CallOption) (*VerifyTokenResponse, error)
 }
 
 type sSOClient struct {
@@ -62,7 +61,7 @@ func (c *sSOClient) LoginUser(ctx context.Context, in *LoginUserRequest, opts ..
 	return out, nil
 }
 
-func (c *sSOClient) VerifyToken(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*VerifyTokenResponse, error) {
+func (c *sSOClient) VerifyToken(ctx context.Context, in *VerifyTokenRequest, opts ...grpc.CallOption) (*VerifyTokenResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(VerifyTokenResponse)
 	err := c.cc.Invoke(ctx, SSO_VerifyToken_FullMethodName, in, out, cOpts...)
@@ -78,7 +77,7 @@ func (c *sSOClient) VerifyToken(ctx context.Context, in *emptypb.Empty, opts ...
 type SSOServer interface {
 	RegisterUser(context.Context, *RegisterUserRequest) (*RegisterUserResponse, error)
 	LoginUser(context.Context, *LoginUserRequest) (*LoginUserResponse, error)
-	VerifyToken(context.Context, *emptypb.Empty) (*VerifyTokenResponse, error)
+	VerifyToken(context.Context, *VerifyTokenRequest) (*VerifyTokenResponse, error)
 	mustEmbedUnimplementedSSOServer()
 }
 
@@ -95,7 +94,7 @@ func (UnimplementedSSOServer) RegisterUser(context.Context, *RegisterUserRequest
 func (UnimplementedSSOServer) LoginUser(context.Context, *LoginUserRequest) (*LoginUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginUser not implemented")
 }
-func (UnimplementedSSOServer) VerifyToken(context.Context, *emptypb.Empty) (*VerifyTokenResponse, error) {
+func (UnimplementedSSOServer) VerifyToken(context.Context, *VerifyTokenRequest) (*VerifyTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VerifyToken not implemented")
 }
 func (UnimplementedSSOServer) mustEmbedUnimplementedSSOServer() {}
@@ -156,7 +155,7 @@ func _SSO_LoginUser_Handler(srv interface{}, ctx context.Context, dec func(inter
 }
 
 func _SSO_VerifyToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(VerifyTokenRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -168,7 +167,7 @@ func _SSO_VerifyToken_Handler(srv interface{}, ctx context.Context, dec func(int
 		FullMethod: SSO_VerifyToken_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SSOServer).VerifyToken(ctx, req.(*emptypb.Empty))
+		return srv.(SSOServer).VerifyToken(ctx, req.(*VerifyTokenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

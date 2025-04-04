@@ -11,7 +11,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	_ "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -224,6 +224,50 @@ func (x *LoginUserResponse) GetUserId() int64 {
 	return 0
 }
 
+type VerifyTokenRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *VerifyTokenRequest) Reset() {
+	*x = VerifyTokenRequest{}
+	mi := &file_sso_v1_sso_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VerifyTokenRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VerifyTokenRequest) ProtoMessage() {}
+
+func (x *VerifyTokenRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sso_v1_sso_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VerifyTokenRequest.ProtoReflect.Descriptor instead.
+func (*VerifyTokenRequest) Descriptor() ([]byte, []int) {
+	return file_sso_v1_sso_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *VerifyTokenRequest) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
 type VerifyTokenResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -233,7 +277,7 @@ type VerifyTokenResponse struct {
 
 func (x *VerifyTokenResponse) Reset() {
 	*x = VerifyTokenResponse{}
-	mi := &file_sso_v1_sso_proto_msgTypes[4]
+	mi := &file_sso_v1_sso_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -245,7 +289,7 @@ func (x *VerifyTokenResponse) String() string {
 func (*VerifyTokenResponse) ProtoMessage() {}
 
 func (x *VerifyTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sso_v1_sso_proto_msgTypes[4]
+	mi := &file_sso_v1_sso_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -258,7 +302,7 @@ func (x *VerifyTokenResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyTokenResponse.ProtoReflect.Descriptor instead.
 func (*VerifyTokenResponse) Descriptor() ([]byte, []int) {
-	return file_sso_v1_sso_proto_rawDescGZIP(), []int{4}
+	return file_sso_v1_sso_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *VerifyTokenResponse) GetUserId() int64 {
@@ -285,13 +329,15 @@ const file_sso_v1_sso_proto_rawDesc = "" +
 	"\xfaB\ar\x05\x10\x06\x18\x80\x01R\bpassword\"B\n" +
 	"\x11LoginUserResponse\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\x03R\x06userId\".\n" +
+	"\auser_id\x18\x02 \x01(\x03R\x06userId\"*\n" +
+	"\x12VerifyTokenRequest\x12\x14\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\".\n" +
 	"\x13VerifyTokenResponse\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\x03R\x06userId2\x8a\x02\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId2\x8b\x02\n" +
 	"\x03SSO\x12\\\n" +
 	"\fRegisterUser\x12\x18.sso.RegisterUserRequest\x1a\x19.sso.RegisterUserResponse\"\x17\x82\xd3\xe4\x93\x02\x11:\x01*\"\f/v1/register\x12P\n" +
-	"\tLoginUser\x12\x15.sso.LoginUserRequest\x1a\x16.sso.LoginUserResponse\"\x14\x82\xd3\xe4\x93\x02\x0e:\x01*\"\t/v1/login\x12S\n" +
-	"\vVerifyToken\x12\x16.google.protobuf.Empty\x1a\x18.sso.VerifyTokenResponse\"\x12\x82\xd3\xe4\x93\x02\f\x12\n" +
+	"\tLoginUser\x12\x15.sso.LoginUserRequest\x1a\x16.sso.LoginUserResponse\"\x14\x82\xd3\xe4\x93\x02\x0e:\x01*\"\t/v1/login\x12T\n" +
+	"\vVerifyToken\x12\x17.sso.VerifyTokenRequest\x1a\x18.sso.VerifyTokenResponse\"\x12\x82\xd3\xe4\x93\x02\f\x12\n" +
 	"/v1/verifyB1Z/github.com/iamvkosarev/sso/pkg/proto/sso/v1;ssob\x06proto3"
 
 var (
@@ -306,22 +352,22 @@ func file_sso_v1_sso_proto_rawDescGZIP() []byte {
 	return file_sso_v1_sso_proto_rawDescData
 }
 
-var file_sso_v1_sso_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_sso_v1_sso_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_sso_v1_sso_proto_goTypes = []any{
 	(*RegisterUserRequest)(nil),  // 0: sso.RegisterUserRequest
 	(*RegisterUserResponse)(nil), // 1: sso.RegisterUserResponse
 	(*LoginUserRequest)(nil),     // 2: sso.LoginUserRequest
 	(*LoginUserResponse)(nil),    // 3: sso.LoginUserResponse
-	(*VerifyTokenResponse)(nil),  // 4: sso.VerifyTokenResponse
-	(*emptypb.Empty)(nil),        // 5: google.protobuf.Empty
+	(*VerifyTokenRequest)(nil),   // 4: sso.VerifyTokenRequest
+	(*VerifyTokenResponse)(nil),  // 5: sso.VerifyTokenResponse
 }
 var file_sso_v1_sso_proto_depIdxs = []int32{
 	0, // 0: sso.SSO.RegisterUser:input_type -> sso.RegisterUserRequest
 	2, // 1: sso.SSO.LoginUser:input_type -> sso.LoginUserRequest
-	5, // 2: sso.SSO.VerifyToken:input_type -> google.protobuf.Empty
+	4, // 2: sso.SSO.VerifyToken:input_type -> sso.VerifyTokenRequest
 	1, // 3: sso.SSO.RegisterUser:output_type -> sso.RegisterUserResponse
 	3, // 4: sso.SSO.LoginUser:output_type -> sso.LoginUserResponse
-	4, // 5: sso.SSO.VerifyToken:output_type -> sso.VerifyTokenResponse
+	5, // 5: sso.SSO.VerifyToken:output_type -> sso.VerifyTokenResponse
 	3, // [3:6] is the sub-list for method output_type
 	0, // [0:3] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -340,7 +386,7 @@ func file_sso_v1_sso_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sso_v1_sso_proto_rawDesc), len(file_sso_v1_sso_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
