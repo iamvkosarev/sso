@@ -9,7 +9,6 @@ import (
 	pb "github.com/iamvkosarev/sso/pkg/proto/sso/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"log/slog"
 )
 
@@ -82,32 +81,42 @@ func (s *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (*pb.L
 	return &pb.LoginUserResponse{Token: token, UserId: resId}, nil
 }
 
-func (s *Server) VerifyToken(ctx context.Context, _ *emptypb.Empty) (*pb.VerifyTokenResponse, error) {
+func (s *Server) VerifyToken(ctx context.Context, req *pb.VerifyTokenRequest) (*pb.VerifyTokenResponse, error) {
 	const op = "grpc.Server.VerifyToken"
 
 	log := s.Logger.With(
 		slog.String("op", op),
 	)
 
-	token, err := jwt.GetTokenFormContext(ctx)
-	if err != nil {
-		switch {
-		case errors.Is(err, entity.ErrNoMetadata):
-			return nil, status.Error(codes.PermissionDenied, "failed to extract token: empty metadata")
-		case errors.Is(err, entity.ErrNoAuthHeader):
-			return nil, status.Error(
-				codes.PermissionDenied, "failed to extract token: there is no header \"authorization\"",
-			)
-		case errors.Is(err, entity.ErrInvalidAuthHeader):
-			return nil, status.Error(
-				codes.PermissionDenied,
-				"failed to extract token: not correct 'authorization' "+
-					"value format: correct format is 'Bearer YOUR_TOKEN_HERE'",
-			)
-		default:
-			log.Error("failed to extract", err.Error())
-			return nil, status.Error(codes.Internal, "internal error")
+	token := req.Token
+
+	var err error
+
+	if token == "" {
+		token, err = jwt.GetTokenFormContext(ctx)
+		if err != nil {
+			switch {
+			case errors.Is(err, entity.ErrNoMetadata):
+				return nil, status.Error(codes.PermissionDenied, "failed to extract token: empty metadata")
+			case errors.Is(err, entity.ErrNoAuthHeader):
+				return nil, status.Error(
+					codes.PermissionDenied, "failed to extract token: there is no header \"authorization\"",
+				)
+			case errors.Is(err, entity.ErrInvalidAuthHeader):
+				return nil, status.Error(
+					codes.PermissionDenied,
+					"failed to extract token: not correct 'authorization' "+
+						"value format: correct format is 'Bearer YOUR_TOKEN_HERE'",
+				)
+			default:
+				log.Error("failed to extract", err.Error())
+				return nil, status.Error(codes.Internal, "internal error")
+			}
 		}
+	}
+
+	if token == "" {
+		return nil, status.Error(codes.PermissionDenied, "invalid token")
 	}
 
 	userID, err := s.userUseCase.Verify(ctx, token)
