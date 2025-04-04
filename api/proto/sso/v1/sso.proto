@@ -3,7 +3,6 @@ syntax = "proto3";
 package sso;
 
 import "google/api/annotations.proto";
-import "google/protobuf/empty.proto";
 import "validate/validate.proto";
 
 option go_package = "github.com/iamvkosarev/sso/pkg/proto/sso/v1;sso";
