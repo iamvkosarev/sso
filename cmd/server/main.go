@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/iamvkosarev/go-shared-utils/logger/sl"
@@ -20,31 +21,79 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("No .env file found or failed to load")
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func run() error {
+	notifyCtx, notifyCtxCancel := signal.NotifyContext(
+		context.Background(),
+		syscall.SIGINT, syscall.SIGTERM, os.Interrupt,
+	)
+	defer notifyCtxCancel()
+
+	mainCtx, cancelWithCause := context.WithCancelCause(notifyCtx)
+	defer cancelWithCause(nil)
+
+	var err error
+	shutdownFunc := make([]func(ctx context.Context) error, 0)
+
+	if err = godotenv.Load(); err != nil {
+		return err
 	}
 
 	cfg := config.MustLoad()
 	logger, err := sl.SetupLogger(cfg.Env)
 	if err != nil {
-		log.Fatalf("error setting up logger: %v\n", err)
+		return fmt.Errorf("failed to setup logger: %w", err)
 	}
 
-	ctx := context.Background()
+	shutdown := func(outErr error) error {
+		notifyCtxCancel()
+		log.Println("Shutting down...")
+		shuttingDownCtx, cancel := context.WithTimeout(context.Background(), cfg.App.ShuttingDownTimeout)
+		defer cancel()
+		if outErr != nil {
+			err = errors.Join(outErr, err)
+		}
+		for _, f := range shutdownFunc {
+			if funcErr := f(shuttingDownCtx); funcErr != nil {
+				err = errors.Join(funcErr, err)
+			}
+		}
+		log.Println("Shutting down gracefully")
+		return err
+	}
+
+	if err != nil {
+		return fmt.Errorf("failed to setup tracer provider: %w", err)
+	}
 
 	dns := fmt.Sprintf(
 		"postgres://%v:%v@%v:%v/%v?sslmode=disable",
 		os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_SERVICE_NAME"),
 		os.Getenv("DB_PORT_INTERNAL"), os.Getenv("DB_NAME"),
 	)
-	pool, err := postgres.NewPostgresPool(ctx, dns)
+	log.Println("Starting Postgres pool connection")
+	pool, err := postgres.NewPostgresPool(mainCtx, dns)
 	if err != nil {
-		log.Fatalf("error setting up postgres: %v\n", err)
+		return fmt.Errorf("error setting up postgres: %w", err)
 	}
+	shutdownFunc = append(
+		shutdownFunc, func(ctx context.Context) error {
+			pool.Close()
+			log.Println("Pool shutdown gracefully")
+			return nil
+		},
+	)
+
 	userRepository := sqlRepository.NewUserRepository(pool)
 
 	opts := []grpc.ServerOption{
@@ -52,36 +101,41 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer(opts...)
+	shutdownFunc = append(
+		shutdownFunc, func(ctx context.Context) error {
+			grpcServer.GracefulStop()
+			log.Println("gRPC server shutdown gracefully")
+			return nil
+		},
+	)
+
 	useCase := usecase.NewUserUseCase(userRepository, cfg.App)
 	ssoServer := server.NewServer(useCase, logger)
 
 	pb.RegisterSSOServer(grpcServer, ssoServer)
 
-	grpcAddr := fmt.Sprintf("0.0.0.0%s", cfg.Server.GRPCPort)
-	lis, err := net.Listen("tcp", grpcAddr)
+	lis, err := net.Listen("tcp", cfg.Server.GRPCAddress)
 	if err != nil {
-		log.Fatalf("failed to listen on %s: %v", grpcAddr, err)
+		return shutdown(fmt.Errorf("failed to listen on %s: %w", cfg.Server.GRPCAddress, err))
 	}
 
 	go func() {
-		log.Println("Starting gRPC server on", cfg.Server.GRPCPort)
-		if err := grpcServer.Serve(lis); err != nil {
-			log.Fatalf("failed to serve: %v", err)
+		log.Println("Starting gRPC server on", cfg.Server.GRPCAddress)
+		if err = grpcServer.Serve(lis); err != nil {
+			cancelWithCause(fmt.Errorf("failed to start gRPC server: %w", err))
 		}
 	}()
 
 	httpMux := http.NewServeMux()
-
-	grpcGatewayTarget := fmt.Sprintf("localhost%s", cfg.Server.GRPCPort)
 
 	gwOpts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
 
 	gwMux := runtime.NewServeMux()
-	err = pb.RegisterSSOHandlerFromEndpoint(ctx, gwMux, grpcGatewayTarget, gwOpts)
+	err = pb.RegisterSSOHandlerFromEndpoint(mainCtx, gwMux, cfg.Server.GRPCAddress, gwOpts)
 	if err != nil {
-		log.Fatalf("failed to start HTTP gateway: %v", err)
+		return shutdown(fmt.Errorf("failed to register gateway: %w", err))
 	}
 
 	httpMux.Handle("/v1/", gwMux)
@@ -96,13 +150,32 @@ func main() {
 		},
 	)
 
-	corsHandler := middleware.CorsWithOptions(httpMux, cfg.Server.CorsOptions)
-
-	httpAddr := fmt.Sprintf("0.0.0.0%s", cfg.Server.RESTPort)
-
-	log.Printf("Starting REST gateway on %s", httpAddr)
-
-	if err := http.ListenAndServe(httpAddr, corsHandler); err != nil {
-		log.Fatalf("Failed to serve HTTP: %v", err)
+	server := &http.Server{
+		Addr:    cfg.Server.HTTPAddress,
+		Handler: middleware.CorsWithOptions(httpMux, cfg.Server.CorsOptions),
 	}
+	shutdownFunc = append(
+		shutdownFunc, func(ctx context.Context) error {
+			if err = server.Shutdown(ctx); err != nil {
+				return shutdown(fmt.Errorf("failed to shutdown HTTP server: %w", err))
+			}
+			log.Println("HTTP server shutdown gracefully")
+			return nil
+		},
+	)
+
+	go func() {
+		log.Printf("Starting HTTP server on %s\n", server.Addr)
+		if err = server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			cancelWithCause(fmt.Errorf("failed to start HTTP server: %w", err))
+		}
+	}()
+
+	select {
+	case <-notifyCtx.Done():
+		return shutdown(nil)
+	case <-mainCtx.Done():
+		return shutdown(mainCtx.Err())
+	}
+	return nil
 }

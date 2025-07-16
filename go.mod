@@ -1,6 +1,6 @@
 module github.com/iamvkosarev/sso
 
-go 1.23.2
+go 1.24.4
 
 require (
 	github.com/envoyproxy/protoc-gen-validate v1.2.1

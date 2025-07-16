@@ -15,18 +15,30 @@ type CorsOptions struct {
 
 type Server struct {
 	RestPrefix  string      `yaml:"rest_prefix"`
-	RESTPort    string      `yaml:"rest_port"`
-	GRPCPort    string      `yaml:"grpc_port"`
+	HTTPAddress string      `yaml:"http_address"`
+	GRPCAddress string      `yaml:"grpc_address"`
 	CorsOptions CorsOptions `yaml:"cors"`
 }
 
 type App struct {
-	Secret   string        `yaml:"secret"`
-	TokenTTL time.Duration `yaml:"token_ttl"`
+	Secret              string        `yaml:"secret"`
+	TokenTTL            time.Duration `yaml:"token_ttl"`
+	ShuttingDownTimeout time.Duration `yaml:"shutting_down"`
+}
+
+type OTelTracing struct {
+	AlwaysSample              bool   `yaml:"always_sample"`
+	ServiceName               string `yaml:"service_name"`
+	TraceGRPCExporterEndpoint string `yaml:"trace_grpc_exporter_endpoint"`
+}
+
+type OTel struct {
+	Tracing OTelTracing `yaml:"tracing"`
 }
 
 type Config struct {
 	Env    string `yaml:"env" env-default:"development"`
+	OTel   `yaml:"open_telemetry"`
 	Server `yaml:"server"`
 	App    `yaml:"app"`
 }
