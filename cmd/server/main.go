@@ -13,8 +13,11 @@ import (
 	"github.com/iamvkosarev/sso/internal/infrastructure/grpc/interceptor"
 	"github.com/iamvkosarev/sso/internal/infrastructure/http/middleware"
 	sqlRepository "github.com/iamvkosarev/sso/internal/infrastructure/repository/postgres"
+	"github.com/iamvkosarev/sso/internal/otel/tracing"
 	pb "github.com/iamvkosarev/sso/pkg/proto/sso/v1"
 	"github.com/joho/godotenv"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -72,9 +75,12 @@ func run() error {
 		return err
 	}
 
+	log.Println("Starting setup tracer provider")
+	tracerProvider, err := tracing.SetupTracerProvider(mainCtx, cfg.OTel.Tracing)
 	if err != nil {
 		return fmt.Errorf("failed to setup tracer provider: %w", err)
 	}
+	shutdownFunc = append(shutdownFunc, tracerProvider.Shutdown)
 
 	dns := fmt.Sprintf(
 		"postgres://%v:%v@%v:%v/%v?sslmode=disable",
@@ -84,7 +90,7 @@ func run() error {
 	log.Println("Starting Postgres pool connection")
 	pool, err := postgres.NewPostgresPool(mainCtx, dns)
 	if err != nil {
-		return fmt.Errorf("error setting up postgres: %w", err)
+		return shutdown(fmt.Errorf("failed to connect to postgres: %w", err))
 	}
 	shutdownFunc = append(
 		shutdownFunc, func(ctx context.Context) error {
@@ -98,6 +104,7 @@ func run() error {
 
 	opts := []grpc.ServerOption{
 		grpc.UnaryInterceptor(interceptor.RecoveryInterceptor(logger)),
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 	}
 
 	grpcServer := grpc.NewServer(opts...)
@@ -152,7 +159,7 @@ func run() error {
 
 	server := &http.Server{
 		Addr:    cfg.Server.HTTPAddress,
-		Handler: middleware.CorsWithOptions(httpMux, cfg.Server.CorsOptions),
+		Handler: otelhttp.NewHandler(middleware.CorsWithOptions(httpMux, cfg.Server.CorsOptions), "http-gateway"),
 	}
 	shutdownFunc = append(
 		shutdownFunc, func(ctx context.Context) error {
